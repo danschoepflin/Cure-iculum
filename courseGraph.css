@@ -1,0 +1,174 @@
+.sidebar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	z-index: 1001;
+	width: 340px;
+}
+
+.sidebar > .sidebar-overlay {
+ 	opacity: 0;
+ 	height: 100%;
+ 	width: 100$;
+ 	z-index: 0;
+	position: fixed;	
+	background: #000;
+	transition-property: opacity;
+	transition-duration: 0.2s;
+}
+
+.sidebar > .sidebar-content {
+	background-color: #fff;
+	box-shadow: 0 -1px 24px rgba(0,0,0,0.4);
+	height: 100%;
+	left: -340px;
+	position: absolute;
+	width: 320px;
+	transition-property: transform;
+	transition-duration: 0.3s;
+}
+
+.sidebar.open {
+	display: block;
+}
+
+.sidebar.open > .sidebar-overlay {
+	opacity: 0.3;
+}
+
+.sidebar.open > .sidebar-content {
+	transform: translateX(340px);
+}
+
+.main-content {
+	background: #467dd6;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	transition-property: transform;
+	transition-duration: 0.3s;
+	z-index: 10001;
+}
+
+.sidebar.open > .main-content {
+	transform: translateX(320px);
+	z-index: -1;
+}
+
+a.selected {
+	background-color: #1F75CC;
+	color:white;
+	z-index: 300000;
+}
+
+.messagepop {
+	background-color:#f0a76b;
+	border: 1px solid #999999;
+	cursor: default;
+	display: none;
+	text-align: left;
+	z-index: 0;
+	padding: 30px 20px 40px 20px;
+	margin: auto;
+	width: 25%;
+}
+
+
+.messagepop2 {
+	background-color:#f0a76b;
+	border: 1px solid #999999;
+	cursor: default;
+	display: none;
+	text-align: left;
+	z-index: 0;
+	padding: 30px 20px 40px 20px;
+	margin: auto;
+	width: 75%;
+}
+
+
+.course {
+	background-color: #EFEFEF;
+	border: 5px solid #888888;
+	display: block;
+	margin: auto;
+	width: 25%;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	position: absolute;
+}
+
+.coursename {
+	display: block;
+	margin: auto;
+	font-family: 'Francois One';
+	color: #2a63bf;
+	padding: 10px 10px 10px 10px;
+	text-align: center;
+	border-radius: 3px;
+}
+
+label {
+	display: block;
+	margin-bottom: 3px;
+	padding-left: 15px;
+	text-indent: -15px;
+}
+
+.messagepop p, .messagepop.div, .messagepop2 p, .messagepop2.div {
+	border-bottom: 1px solid #EFEFEF;
+	padding-bottom: 8px;
+	margin: auto;
+}
+
+.arrow {
+	stroke-width:5;
+	marker-end:url(#markerArrow);
+}
+
+.connectionArrow {
+	z-index: -1;
+}
+
+.pagetitle {
+	font-family: 'Oswald';
+	font-size: 25px;
+	color: #bf2a63;
+	display: block;
+	margin: auto;
+	width: 50%;
+	padding: 10px 10px 10px 10px;
+	text-align: center;
+	border-radius: 5px;
+	background-color: #cccccc;
+	border: 5px solid #444444;
+}
+
+p {
+	font-family: 'Montserrat';	
+	color: #2a63bf;
+}
+body {
+		background: #467dd6;
+}
+
+.a_button {
+	background-color: #d65746;
+	border-radius: 5px;
+	color: #07294D;
+	padding: .5em;
+	text-decoration: none;
+	font-family: 'Montserrat';
+	border: 2px solid #666; /* dark outline */
+}
+
+.a_button:focus, .a_button:hover {
+	background-color: FireBrick;
+	color: White;
+}
+
+

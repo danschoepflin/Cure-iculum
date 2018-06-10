@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="apple-touch-icon" href="Dragon_yellow_72x72.png">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-webapp-status-bar-style" content="black" />
+
+		<link rel="stylesheet" type="text/css" href="iphone_landscape.css" media="screen and (orientation:landscape)"/>
+		<link rel="stylesheet" type="text/css" href="assignmentCreation.css" />
+		<link rel="stylesheet" type="text/css" href="assignmentCreation.css" media="screen and (orientation:portrait)"/>
+		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Candal" />
+		<link type="text/css" href="https://fonts.googleapis.com/css?family=Francois+One|Montserrat|Oswald" rel="stylesheet"> 
+		<title> Cure-iculum Course Graph </title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script>
+			var courseJSON = sessionStorage.getItem("courseJSON");
+			var myObject = JSON.parse(courseJSON);
+
+			var numQuestions = 1;
+
+			var pagetitle = window.location.href;
+
+			var urltitle = new URL(pagetitle);
+			var assnname = urltitle.searchParams.get("name");
+			var editingName = urltitle.searchParams.get("editing");
+
+			var assignment = {};
+			var editing = false;
+			var topics = [];
+			var grading = false;
+
+			if(editingName == 'true') {
+				editing = true;
+			
+				for (var i in myObject.assignments) {
+					if(myObject.assignments[i].name == assnname) {
+						assignment = myObject.assignments[i];
+						break;
+					}
+				}
+
+			}
+
+
+			$(function() {
+
+				function addQuestion(preprompt) {
+					if(preprompt != null) {
+					} else {
+
+				}
+				}
+
+
+
+				$(window).load(function() {
+		
+					myObject.courseGoals.forEach(function (element) {
+						element.topics.forEach(function (element2) {
+							topics.push(element2);
+						});
+					});
+
+					if(editing) {
+						$('#inputName')[0].value = assignment.name;
+						for(var quest in assignment.questions) {
+							var newQuestContents = '<div class="question question'+numQuestions+'" style="padding-bottom:30px;"><textarea class="question-prompt" style="padding-right: 30px; width:500px; vertical-align:middle;">'+assignment.questions[quest].prompt+'</textarea><a href="#" class="associateTopics button" id="associateTopics'+numQuestions+'" role="button">Associate Topics</a></div><a href="#" class="add-question button" role="button">Add question</a>';
+
+							var sidebarContents = '<div class="questionTopics'+numQuestions+'" id="associateTopics'+numQuestions+'Panel" style="display:none;">';
+
+				 	
+							for(t in topics) {
+								var topicCheck = '<label class="container">'+topics[t].name+'<input type="checkbox"><span class="checkmark"></span></label>';
+								if(assignment.questions[quest].associations.includes(topics[t].name)) {
+									topicCheck = '<label class="container">'+topics[t].name+'<input type="checkbox" checked><span class="checkmark"></span></label>';
+								}
+								sidebarContents = sidebarContents + topicCheck;
+				 			}
+							sidebarContents = sidebarContents+'<a href="#" class="acceptTopics button" id="acceptTopics'+numQuestions+'" role="button" style="float: right; padding-top: 5px;">Accept Topics</a>';
+
+							sidebarContents = sidebarContents+'</div>';
+							$('.sidebar-content').append(sidebarContents);
+
+
+
+
+
+							numQuestions = numQuestions+1;
+							$('.assignment-container').children().last().remove();
+						 	$('.assignment-container').append(newQuestContents);
+						}
+					}
+				});	
+				$(document).on('click', '.acceptTopics', function() { 					
+					$(".sidebar").toggleClass("open");
+					if($(".sidebar").css("z-index") == 100000) {
+						$(".sidebar").css("z-index","1");
+						var whichTopics = $(this).attr('id');
+						whichTopics = whichTopics.replace("acceptTopics","");
+						$('#associateTopics'+whichTopics+'Panel').css("display","none");
+					} else {
+							$(".sidebar").css("z-index",100000);
+					}
+				});
+				$(".add-goal").click(function() {
+					if($(this).hasClass('selected')) {
+						deselect($(this));
+					} else {
+						$(this).addClass('selected');
+						$('.pop').slideFadeToggle();
+					}
+					return false;
+				});
+				$(".close").click(function() {
+					deselect($('.add-goal'));
+					$('#coursetopic').val('');
+					return false;
+				});
+
+
+				$(".close2").click(function() {
+					deselect2($('.add-connection'));
+					$('#dependencySource').val('');
+					$('#dependencySink').val('');
+					return false;
+				});
+
+				$(".accept").click(function() {
+					createCourse($('#coursetopic').val());
+					deselect($('.add-goal'));
+					$('#coursetopic').val('');
+
+				});
+
+				$(".accept2").click(function() {
+					if($("#dependencySource").val() != '' && $("#dependencySink").val() != '') {
+						connectCourses($("#"+$("#dependencySource").val()),$("#"+$("#dependencySink").val()));
+						$('#dependencySource').val('');
+						$('#dependencySink').val('');
+						deselect2($('.add-connection'));
+					}
+				});
+
+				$(".add-connection").click(function() {
+					if($(this).hasClass('selected')) {
+						deselect2($(this));
+					} else {
+						$(this).addClass('selected');
+						$('.pop2').slideFadeToggle();
+					}
+					return false;
+				});
+
+				$(document).on('click','.course',function() {
+					if($(".add-connection").hasClass('selected')) {
+						if($("#dependencySource").val() == '')
+						{
+							$("#dependencySource").val($(this).attr('id'));
+						} else {
+							$("#dependencySink").val($(this).attr('id'));
+						}
+					}
+
+				});
+
+				$(document).on('click', '.gradeAssignment', function () {
+					if(!grading) {
+						$('.question').append('<label class="scorelabel">Average Percent Score</label><input class="scoreinput" type="number"></input>');
+						$('.main-content').append('<a href="#" class="saveGrades button" role="button" style="float:right;">Save grades</a>');
+
+						grading = true;
+					} else {
+						$('.scorelabel').remove();
+						$('.scoreinput').remove();
+						$('.saveGrades').remove();
+						grading = false;
+					}
+				});
+
+				$(document).on('click', '.saveGrades', function () {
+					for(var iter = 0; iter < myObject.assignments.length; iter = iter+1) {
+						if(myObject.assignments[iter].name == assnname) {
+										     $('.question').each(function(i, obj) { 
+										     var childStuff = obj.children;
+										     Array.prototype.forEach.call(childStuff, function(element) {
+										     	if(element.classList.contains('scoreinput')) {
+										     		console.log(element.value);
+										     		for(var iter2 = 0; iter2 < myObject.assignments[iter].questions.length; iter2 = iter2+1) {
+													if(myObject.assignments[iter].questions[iter2].number == i) {
+										     myObject.assignments[iter].questions[iter2].performance = element.value;
+										     }
+												}
+											
+											}
+										     });
+										     });
+										     }
+						}
+					sessionStorage.setItem("courseJSON", JSON.stringify(myObject));
+					alert('Grades saved!');
+				});
+				$(document).on('click', '.add-question', function() {		
+					var newQuestContents = '<div class="question question'+numQuestions+'" style="padding-bottom:30px;"><textarea class="question-prompt" style="padding-right: 30px; width:500px; vertical-align:middle;">Question prompt...</textarea><a href="#" class="associateTopics button" id="associateTopics'+numQuestions+'" role="button">Associate Topics</a></div><a href="#" class="add-question button" role="button">Add question</a>';
+
+					var sidebarContents = '<div class="questionTopics'+numQuestions+'" id="associateTopics'+numQuestions+'Panel" style="display:none;">';
+				 	
+					for(t in topics) {
+						var topicCheck = '<label class="container">'+topics[t].name+'<input type="checkbox"><span class="checkmark"></span></label>';
+						sidebarContents = sidebarContents + topicCheck;
+				 	}
+
+					sidebarContents = sidebarContents+'<a href="#" class="acceptTopics button" id="acceptTopics'+numQuestions+'" role="button" style="float: right; padding-top: 5px;">Accept Topics</a>';
+
+
+					sidebarContents = sidebarContents+'</div>';
+					$('.sidebar-content').append(sidebarContents);
+
+					numQuestions = numQuestions+1;
+					$('.assignment-container').children().last().remove();
+				 	$('.assignment-container').append(newQuestContents);
+							
+				});
+
+				$(document).on('click', '.associateTopics', function() {
+					$(".sidebar").toggleClass("open");
+					if($(".sidebar").css("z-index") == 100000) {
+						$(".sidebar").css("z-index","1");} else {
+							$(".sidebar").css("z-index",100000);
+							$("#"+$(this).attr('id')+"Panel").css("display","block");
+					}
+				});
+
+													     $(document).on('click', '.saveAssignment', function () {
+					assignment.name = $('#inputName')[0].value;
+					assignment.questions = [];
+					$('.question-prompt').each(function(i,obj) {
+						var question = {};
+						question.number = i;
+						question.prompt = obj.value;
+						question.associations = [];
+						question.performance = 0;
+
+						$("#associateTopics"+(i+1)+"Panel")[0].childNodes.forEach(function(j, obj) {
+							
+							
+							if(j.getElementsByTagName('input').length != 0 && j.getElementsByTagName('input')[0].checked) {
+								question.associations.push(j.textContent);
+							}
+						});
+
+				  		assignment.questions.push(question);
+					});
+
+					if(editing) {
+						for (var i in myObject.assignments) {
+							if(myObject.assignments[i].name == assnname) {
+								myObject.assignments[i] = assignment;
+								break;
+							}
+						}
+					} else {
+						myObject.assignments.push(assignment);
+					}
+					courseJSON = JSON.stringify(myObject);
+					sessionStorage.setItem("courseJSON", courseJSON);
+					alert('Assignment Saved!');
+				});
+
+			});
+			function deselect(e) {
+				$('.pop').slideFadeToggle(function() {
+					e.removeClass('selected');
+				});
+			}
+
+			function deselect2(e) {
+				$('.pop2').slideFadeToggle(function() {
+					e.removeClass('selected');
+				});
+			}
+
+			$.fn.slideFadeToggle = function(easing, callback) {
+				return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
+			};
+
+			function createCourse(name) {
+				$('.main-content').append("<div class=\"course draggable\" id=\""+name+"\"><p class=\"coursename\">"+name+"</p></div>");
+				$(".draggable").draggable();
+				//dragElement(document.getElementById(name));
+			}
+
+			function connectCourses(source, sink) {
+
+				var toRight = (sink.position().left > source.position().left);
+				var toDown = (sink.position().top > source.position().top);
+
+				var create_svg;
+				if(toRight) {
+					if(toDown) {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="0" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+					else {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}	
+				} else {
+					if(toDown) {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="0" x2="0" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+					else {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="0" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+				}
+				$(".main-content").append(create_svg);
+				sink.draggable("disable");
+				source.draggable("disable");
+			}
+
+		</script>
+	</head>
+	<body>
+		<!-- HTML5 article tag for content -->
+		<div id="content" class="center">
+				<div class="main-content">
+					<div class="header_container">
+						<a href="assignmentHomepage.html" class="button" role="button" style="float-left;">Assignment Homepage</a>
+					<div class="pagetitle">Assignment Creation</div>
+					<label>Assignment Name</label><input id="inputName" type="text"></input>
+					</div>
+					<br/>
+					<div class="assignment-container" style="padding-left:80px;"> 
+											<a href="#" class="add-question button" role="button">Add question</a>
+					</div>
+					<a href="#" class="saveAssignment button" role="button" style="float:right;">Save assignment</a>
+					<a href="#" class="gradeAssignment button" role="button" style="float:right;">Report Grades</a>
+				</div>
+				<div class="sidebar">
+					<div class="sidebar-overlay"></div>
+					<div class="sidebar-content">
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

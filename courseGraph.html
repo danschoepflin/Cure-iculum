@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="apple-touch-icon" href="Dragon_yellow_72x72.png">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-webapp-status-bar-style" content="black" />
+
+		<link rel="stylesheet" type="text/css" href="iphone_landscape.css" media="screen and (orientation:landscape)"/>
+		<link rel="stylesheet" type="text/css" href="courseGraph.css" />
+		<link rel="stylesheet" type="text/css" href="courseGraph.css" media="screen and (orientation:portrait)"/>
+		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Candal" />
+		<link type="text/css" href="https://fonts.googleapis.com/css?family=Francois+One|Montserrat|Oswald" rel="stylesheet"> 
+		<title> Cure-iculum Course Graph </title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script>
+			var courseJSON = sessionStorage.getItem("courseJSON");
+			var myObject = JSON.parse(courseJSON);
+
+			$(function() { 
+
+				$(window).load(function () {
+					var i = 1;
+					if(myObject != null) {
+						myObject.courseGoals.forEach(function(element) {
+							if(element.graphPositionX == -1)  {
+								$('.main-content').append("<div class=\"course draggable\" id=\""+element.name+"\" style=\"position:absolute;left:"+(120*i)+"px;top:"+(120*i)+"px\"><p class=\"coursename\">"+element.name+"</p></div>");
+								$(".draggable").draggable();
+								i = i+1;
+							} else {
+								$('.main-content').append("<div class=\"course\" id=\""+element.name+"\" style=\"position:absolute;left:"+element.graphPositionX+"px;top:"+element.graphPositionY+"px\"><p class=\"coursename\">"+element.name+"</p></div>");
+							}
+
+
+						});
+
+						myObject.courseGoals.forEach(function(element) {
+							for(var iter = 0; iter < element.dependsOn.length; iter = iter + 1) {
+								var sink = $('#'+element.name);
+								var source = $('#'+element.dependsOn[iter]);
+								var toRight = (sink.position().left > source.position().left);
+								var toDown = (sink.position().top > source.position().top);
+
+								var create_svg;
+								if(toRight) {
+									if(toDown) {
+										create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="0" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+									}
+									else {
+										create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+									}	
+								} else {
+									if(toDown) {
+										create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="0" x2="0" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+									}
+									else {
+										create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="0" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+									}
+								}
+								$(".main-content").append(create_svg);
+							}
+						});
+					}
+				});
+
+
+				$(".sidebar-toggle").click(function() { 					$(".sidebar").toggleClass("open");
+					if($(".sidebar").css("z-index") < 100000) {
+						$(".sidebar").css("z-index","100000");} else {
+							$(".sidebar").css("z-index",-1);
+					}
+					});
+				$(".add-goal").click(function() {
+					if($(this).hasClass('selected')) {
+						deselect($(this));
+					} else {
+						$(this).addClass('selected');
+						$('.pop').slideFadeToggle();
+					}
+					return false;
+				});
+				$(".close").click(function() {
+					deselect($('.add-goal'));
+					$('#coursetopic').val('');
+					return false;
+				});
+
+
+				$(".close2").click(function() {
+					deselect2($('.add-connection'));
+					$('#dependencySource').val('');
+					$('#dependencySink').val('');
+					return false;
+				});
+
+				$(".accept").click(function() {
+					createCourse($('#coursetopic').val(), $('#course-diff-num').val());
+					deselect($('.add-goal'));
+					$('#coursetopic').val('');
+
+				});
+
+				$(".accept2").click(function() {
+					if($("#dependencySource").val() != '' && $("#dependencySink").val() != '') {
+						connectCourses($("#"+$("#dependencySource").val()),$("#"+$("#dependencySink").val()));
+						$('#dependencySource').val('');
+						$('#dependencySink').val('');
+						deselect2($('.add-connection'));
+					}
+				});
+
+				$(".add-connection").click(function() {
+					if($(this).hasClass('selected')) {
+						deselect2($(this));
+					} else {
+						$(this).addClass('selected');
+						$('.pop2').slideFadeToggle();
+					}
+					return false;
+				});
+
+				$(document).on('click','.course',function() {
+					if($(".add-connection").hasClass('selected')) {
+						if($("#dependencySource").val() == '')
+						{
+							$("#dependencySource").val($(this).attr('id'));
+						} else {
+							$("#dependencySink").val($(this).attr('id'));
+						}
+					}
+
+				});
+
+				$(document).on("dblclick", '.course', function() {
+					window.location.href = "topicGraph.html?name="+$(this).attr('id');
+				});
+				
+			});
+			function deselect(e) {
+				$('.pop').slideFadeToggle(function() {
+					e.removeClass('selected');
+				});
+			}
+
+			function deselect2(e) {
+				$('.pop2').slideFadeToggle(function() {
+					e.removeClass('selected');
+				});
+			}
+
+			$.fn.slideFadeToggle = function(easing, callback) {
+				return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
+			};
+
+			function createCourse(name2, difficulty) {
+				var name = name2.split(' ').join('_');
+				$('.main-content').append("<div class=\"course draggable\" id=\""+name+"\"><p class=\"coursename\">"+name+"</p></div>");
+				$(".draggable").draggable();
+				var courseToAdd = {};
+				courseToAdd.name = name;
+				courseToAdd.topics = [];
+				courseToAdd.dependsOn = [];
+			     	courseToAdd.difficulty = difficulty;
+				courseToAdd.graphPositionX = -1;
+				courseToAdd.graphPositionY = -1;
+				myObject.courseGoals.push(courseToAdd);
+				courseJSON = JSON.stringify(myObject);
+				sessionStorage.setItem("courseJSON", courseJSON);
+				//dragElement(document.getElementById(name));
+			}
+
+			function connectCourses(source, sink) {
+				var whereToAdd = sink.find("p").text();
+				var fromWhere = source.find("p").text();
+			
+
+				for(var iter = 0; iter < myObject.courseGoals.length; iter = iter+1) {
+					if(myObject.courseGoals[iter].name == whereToAdd) {
+						myObject.courseGoals[iter].graphPositionX = sink.position().left;
+						myObject.courseGoals[iter].graphPositionY = sink.position().top;
+					}
+					if(myObject.courseGoals[iter].name == fromWhere) {
+						myObject.courseGoals[iter].graphPositionX = source.position().left;
+						myObject.courseGoals[iter].graphPositionY = source.position().top;
+					}
+				}
+
+				for(var iter = 0; iter < myObject.courseGoals.length; iter = iter+1) {
+					if(myObject.courseGoals[iter].name == whereToAdd) {
+						for(var iter2 = 0; iter2 < myObject.courseGoals[iter].dependsOn.length; iter2 = iter2+1) {
+							if(myObject.courseGoals[iter].dependsOn[iter2] == fromWhere) {
+								break;
+							}
+						}
+						myObject.courseGoals[iter].dependsOn.push(fromWhere);
+						break;
+					}
+				}
+				
+				courseJSON = JSON.stringify(myObject);
+				sessionStorage.setItem("courseJSON", courseJSON);
+
+				var toRight = (sink.position().left > source.position().left);
+				var toDown = (sink.position().top > source.position().top);
+
+				var create_svg;
+				if(toRight) {
+					if(toDown) {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="0" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+					else {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+source.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="0" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="'+Math.abs(sink.position().left-source.position().left)+'" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}	
+				} else {
+					if(toDown) {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+source.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="0" x2="0" y2="'+Math.abs(sink.position().top-source.position().top)+'" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+					else {
+						create_svg = '<div class="connectionArrow" style="position: absolute;top:'+sink.position().top+'px;left:'+sink.position().left+'px;"><svg height="'+Math.abs(sink.position().top - source.position().top)+'" width="'+Math.abs(sink.position().left - source.position().left)+'"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(0,255,0);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1"/></linearGradient><marker id="markerArrow" markerWidth="300" markerHeight="300" refX="10" refY="6" orient="auto"><path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" /></marker></defs><line x1="'+Math.abs(sink.position().left-source.position().left)+'" y1="'+Math.abs(sink.position().top-source.position().top)+'" x2="0" y2="0" class="arrow" stroke="url(#grad1)"/></svg></div>'; 
+					}
+				}
+				$(".main-content").append(create_svg);
+				sink.draggable("disable");
+				source.draggable("disable");
+			}
+
+		</script>
+	</head>
+	<body>
+		<!-- HTML5 article tag for content -->
+		<div id="content" class="center">
+				<div class="main-content">
+
+					<a class="a_button" href="courseHomepage.html" style="float:right; z-index:-1;">Course Homepage</a>
+					<a href="#" class="sidebar-toggle"><img src="OpenSidebar.png" style="mix-blend-mode:multiply;height:40px;width=40px;"/></a>
+					<div class="pagetitle">Course Graph</div>
+					<br/>
+					<div class="messagepop pop">
+							<p><label>Course Goal Name/Identifier</label><input type="text" id="coursetopic" /></p>
+							<p><label>Estimated Difficulty (Numeric)</label><input type="number" id="course-diff-num"/></p>
+							<button class="close"style="float:left;">Cancel</button>
+							<button class="accept" style="float:right;">Accept</button>
+					</div>
+				</div>
+				<div class="sidebar">
+					<div class="sidebar-overlay"></div>
+					<div class="sidebar-content">
+						<a href="#" class="sidebar-toggle"><img src="OpenSidebar.png" style="transform:rotate(180deg); mix-blend-mode: multiply;height:40px;width=40px;float:right;"/></a>
+						<br/>
+						<a class="add-goal" href="#"><img src="NewCourseGoal.png" style="width:150px; height:150px; mix-blend-mode:multiply; display: block; margin-left: auto; margin-right:auto;"/></a><br/>
+						<a class="add-connection" href="#"><img src="CreateDependency.png" style="width:150px; height:150px; mix-blend-mode:multiply; display:block; margin-left:auto;margin-right:auto;"/></a>
+					<div class="messagepop2 pop2">
+						<p>Click on the parent goal and then the dependent goal.</p><br/>
+						<label>Parent Goal</label><textarea id="dependencySource" readonly></textarea><br/>
+						<label>Dependent Goal</label><textarea readonly id="dependencySink"></textarea></br>
+						<button class="close2"style="float:left;">Cancel</button>
+						<button class="accept2" style="float:right;">Accept</button>
+					</div>
+
+					</div>
+				</div>
+		</div>
+	</body>
+</html>

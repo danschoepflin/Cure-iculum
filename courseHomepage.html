@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="apple-touch-icon" href="Dragon_yellow_72x72.png">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-webapp-status-bar-style" content="black" />
+
+		<link rel="stylesheet" type="text/css" href="iphone_landscape.css" media="screen and (orientation:landscape)"/>
+		<link rel="stylesheet" type="text/css" href="homepage.css" />
+		<link rel="stylesheet" type="text/css" href="homepage.css" media="screen and (orientation:portrait)"/>
+		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Candal" />
+		<link type="text/css" href="https://fonts.googleapis.com/css?family=Francois+One|Montserrat|Oswald" rel="stylesheet"> 
+		<title> Cure-iculum </title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	
+		<script>
+		
+			var courseJSON = sessionStorage.getItem("courseJSON");
+			var myObject = JSON.parse(courseJSON);
+
+			var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myObject));
+
+			$(function() { 
+				$(window).load(function () {
+					$('#course-name').append("<p>"+myObject.name+"<p>");
+
+					$('<a class="a_button" href="data:'+data+'" download="data.json">Export course (as JSON)</a>').appendTo("#export-container");
+				});
+			});
+
+
+		
+		</script>
+	</head>
+	<body>
+		<!-- HTML5 article tag for content -->
+		<div id="content" class="center">
+			<header><script src="stay_standalone.js"></script></header>
+			<!-- H1 means 1st level heading -->
+			<h1>Course Home</h1>
+			<!-- P stands for paragraph -->
+			<div id="course-name"></div>
+			<!-- Navigation buttons -->
+			<ul id="mainButtons">
+				<li><a class="a_button" href="courseGraph.html">Course Topic Graph</a></li>
+				<li><a class="a_button" href="assignmentHomepage.html">Assignments</a></li>
+				<li><a class="a_button" href="courseSchedule.html">Schedule</a></li>
+				<li><div id="export-container"></div></a></li>
+			</ul>
+		</div>
+	</body>
+</html>
