@@ -1,5 +1,5 @@
 # Cure-iculum
-Cure-iculum is a web-based application that leverages editable node-link graph representations and metadata visualization to aid educators in the course development process.
+Cure-iculum is a web-based application that leverages editable node-link graph representations and metadata visualization to aid educators in the course development process.  The goal of the application is to replace existing ad hoc methods used for course creation and collate and "front face" data available to users regarding their courses that they may not readily be able to compile without effort.
 
 Running the application:
 You can copy all of the related files to a server and host the application yourself (it cannot be run locally in its current state as it uses google fonts that are only available with internet access).
